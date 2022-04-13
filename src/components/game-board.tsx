@@ -184,10 +184,9 @@ export const GameBoard = () => {
          </InputGroup>
       </Stack>
    );
-   return (
-      <VStack spacing={8}>
-         {gameControls()}
-         {playerNames()}
+
+   const gameStateMessages = () => (
+      <>
          {!winState.isWinner && !winState.catsGame && (
             <Text color={PlayerColors[player]} fontSize='xl'>{`${
                player === 'X' ? xPlayer : oPlayer
@@ -205,6 +204,13 @@ export const GameBoard = () => {
             </HStack>
          )}
          {winState.catsGame && <Text fontSize={'3xl'}>😿 Cat's Game 😿</Text>}
+      </>
+   );
+   return (
+      <VStack spacing={8}>
+         {gameControls()}
+         {playerNames()}
+         {gameStateMessages()}
          <SimpleGrid columns={boardSize}>
             {boardState.map((value, index) => (
                <GameSquare
