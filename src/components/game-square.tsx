@@ -23,15 +23,22 @@ export const GameSquare: React.FC<SquareProps> = ({
    onClick
 }) => {
    const { colorMode } = useColorMode();
+   const boardBigness =
+      boardSize < 6 ? 'small' : boardSize < 9 ? 'medium' : 'big';
 
+   const mobileStyles = {
+      small: { dim: 16, font: '4xl' },
+      medium: { dim: 12, font: '2xl' },
+      big: { dim: 6, font: 'md' }
+   };
    return (
       <Flex
          borderRight={(index + 1) % boardSize !== 0 ? '2px' : 'none'}
          borderBottom={
             index >= boardSize * boardSize - boardSize ? 'none' : '2px'
          }
-         w={{ base: 6, sm: 8, md: 10, lg: 16 }}
-         h={{ base: 6, sm: 8, md: 10, lg: 16 }}
+         w={{ base: mobileStyles[boardBigness].dim, md: 14, lg: 16 }}
+         h={{ base: mobileStyles[boardBigness].dim, md: 14, lg: 16 }}
          onClick={onClick}
          justify='center'
          alignItems='center'
@@ -47,7 +54,11 @@ export const GameSquare: React.FC<SquareProps> = ({
       >
          <Text
             color={value === '' ? '' : PlayerColors[value]}
-            fontSize={{ base: 'md', md: '2xl', lg: '4xl' }}
+            fontSize={{
+               base: mobileStyles[boardBigness].font,
+               md: '4xl',
+               lg: '4xl'
+            }}
          >
             {value}
          </Text>
