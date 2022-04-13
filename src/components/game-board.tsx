@@ -50,7 +50,6 @@ export const GameBoard = () => {
       handlePlayerNameChange,
 
       //alert stuff:
-      onShowGameWarning,
       onCloseGameWarning,
       showGameWarning,
       cancelGameWarningRef

@@ -1,5 +1,5 @@
 import { useDisclosure } from '@chakra-ui/react';
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import { BoardValue, Player, WinState } from '../types/game-types';
 import { findWinner } from '../utils/find-winner';
 
@@ -57,46 +57,38 @@ export function useGame() {
    const [resizeError, setResizeError] = useState(false);
    const [boardSizeInvalid, setBoardSizeInvalid] = useState(false);
 
-   const resetGame = () => {
+   const resetGame = (newBoardSize: number = null) => {
       setResizeError(false);
       setBoardSizeInvalid(false);
-      setBoardState(buildBoardState(boardSize));
+      setBoardState(buildBoardState(newBoardSize || boardSize));
       setWinState({ ...INITIAL_GAME_STATE });
       setPlayer('X');
    };
-
-   //EFFECTS...
-
-   //if board size changes, then reset the game
-   useEffect(() => {
-      resetGame();
-   }, [boardSize]);
-
-   //if game is in progress and the board state changes, check for a winner
-   useEffect(() => {
-      if (gameIsInProgress) {
-         const result = findWinner(boardState, boardSize);
-         if (result.isWinner || result.catsGame) {
-            setWinState(result);
-         }
-      }
-   }, [boardState]);
 
    //EVENT HANDLERS....
    const handleSquareClick = (index: number) => {
       if (winState.isWinner || winState.catsGame) return;
 
       setResizeError(false);
-      const currentState = [...boardState];
-      if (currentState[index] !== '') {
+      const updateBoardState = [...boardState];
+      if (updateBoardState[index] !== '') {
          return;
       }
-      currentState[index] = currentState[index] = player;
-      setBoardState(currentState);
+      updateBoardState[index] = updateBoardState[index] = player;
+
+      setBoardState(updateBoardState);
+
+      const result = findWinner(updateBoardState, boardSize);
+
+      if (result.isWinner || result.catsGame) {
+         setWinState(result);
+      }
+
       setPlayer(player === 'X' ? 'O' : 'X');
    };
 
    const handleChangeBoardSize = (value: string) => {
+      const newBoardSize = parseInt(value, 10);
       setBoardSizeInputVal(value);
 
       const isValid = isBoardSizeValid(value);
@@ -107,7 +99,8 @@ export function useGame() {
          if (gameIsInProgress) {
             setResizeError(true);
          } else {
-            setBoardSize(parseInt(value, 10));
+            setBoardSize(newBoardSize);
+            resetGame(newBoardSize);
          }
       }
    };
@@ -170,7 +163,6 @@ export function useGame() {
       handlePlayerNameChange,
 
       //alert stuff:
-      onShowGameWarning,
       onCloseGameWarning,
       showGameWarning,
       cancelGameWarningRef
