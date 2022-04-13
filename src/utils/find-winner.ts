@@ -1,9 +1,6 @@
 import { BoardValue, WinState } from '../types/game-types';
 
 export function findWinner(board: BoardValue[], boardSize: number): WinState {
-   //doesn't work
-   //let rows: string[][] = Array(boardSize).fill(Array(boardSize).fill(''));
-
    let rows: string[][] = [...new Array(boardSize)].map(() =>
       new Array(boardSize).fill('')
    );
