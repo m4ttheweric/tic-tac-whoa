@@ -190,19 +190,24 @@ export const GameBoard = () => {
    const gameStateMessages = () => (
       <>
          {!winState.isWinner && !winState.catsGame && (
-            <Text color={PlayerColors[player]} fontSize='xl'>{`${
-               player === 'X' ? xPlayer : oPlayer
-            }'s turn...`}</Text>
+            <Text
+               noOfLines={1}
+               color={PlayerColors[player]}
+               fontSize={{ base: '2xl', md: '3xl' }}
+            >{`${player === 'X' ? xPlayer : oPlayer}'s turn...`}</Text>
          )}
          {winState.isWinner && (
             <HStack>
                <Text
-                  fontSize={'3xl'}
+                  noOfLines={1}
+                  fontSize={{ base: '2xl', md: '3xl' }}
                   color={PlayerColors[winState.winningPlayer]}
                >
                   {`${winState.winningPlayer === 'X' ? xPlayer : oPlayer}`}
                </Text>
-               <Text fontSize={'3xl'}>is the winner! 🚀 🎉</Text>
+               <Text noOfLines={1} fontSize={{ base: '2xl', md: '3xl' }}>
+                  is the winner! 🚀 🎉
+               </Text>
             </HStack>
          )}
          {winState.catsGame && <Text fontSize={'3xl'}>😿 Cat's Game 😿</Text>}
