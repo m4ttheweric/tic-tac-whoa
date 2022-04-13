@@ -61,7 +61,7 @@ export function findWinner(board: BoardValue[], boardSize: number): WinState {
             catsGame: false
          };
       }
-      //left diagonal win
+      //right diagonal win
       if (
          currentRow > 1 &&
          rows[currentRow - 1][rowIndex + 1] === value &&
