@@ -30,8 +30,8 @@ export const GameSquare: React.FC<SquareProps> = ({
          borderBottom={
             index >= boardSize * boardSize - boardSize ? 'none' : '2px'
          }
-         w={{ sm: 10, md: 10, lg: 16 }}
-         h={{ sm: 10, md: 10, lg: 16 }}
+         w={{ base: 6, sm: 8, md: 10, lg: 16 }}
+         h={{ base: 6, sm: 8, md: 10, lg: 16 }}
          onClick={onClick}
          justify='center'
          alignItems='center'
@@ -47,7 +47,7 @@ export const GameSquare: React.FC<SquareProps> = ({
       >
          <Text
             color={value === '' ? '' : PlayerColors[value]}
-            fontSize={{ sm: '2xl', md: '2xl', lg: '4xl' }}
+            fontSize={{ base: 'md', md: '2xl', lg: '4xl' }}
          >
             {value}
          </Text>

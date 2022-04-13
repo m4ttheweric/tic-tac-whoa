@@ -119,7 +119,10 @@ export const GameBoard = () => {
    );
 
    const gameControls = () => (
-      <Stack direction={{ sm: 'column', md: 'row' }}>
+      <Stack
+         direction={{ base: 'column', md: 'row' }}
+         spacing={{ base: 4, md: 4 }}
+      >
          <VStack justify={'center'}>
             {gameSizeInput()}
             {resizeError && (
@@ -149,7 +152,7 @@ export const GameBoard = () => {
    );
 
    const playerNames = () => (
-      <Stack direction={{ sm: 'column', md: 'row' }}>
+      <Stack direction={{ base: 'column', md: 'row' }}>
          <InputGroup>
             <InputLeftAddon
                children={`X's`}
@@ -206,7 +209,7 @@ export const GameBoard = () => {
       </>
    );
    return (
-      <VStack spacing={8}>
+      <VStack spacing={4}>
          {gameControls()}
          {playerNames()}
          {gameStateMessages()}
