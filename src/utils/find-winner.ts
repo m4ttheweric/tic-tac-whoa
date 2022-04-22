@@ -8,25 +8,6 @@ type FindWinResult = {
    winningPlayer: Player;
 };
 
-//as you're looping back to find winning patterns, this will get the next index in the search
-const calculateNextWinPatternIndex = (
-   pattern: WinPattern,
-   boardIndex: number,
-   searchIndex: number,
-   boardSize: number
-) => {
-   switch (pattern) {
-      case 'horizontal':
-         return boardIndex - searchIndex;
-      case 'vertical':
-         return boardIndex - boardSize * searchIndex;
-      case 'leftDiag':
-         return boardIndex - boardSize * searchIndex - searchIndex;
-      case 'rightDiag':
-         return boardIndex - boardSize * searchIndex + searchIndex;
-   }
-};
-
 const isWinPossible = (
    pattern: WinPattern,
    value: BoardValue,
@@ -52,6 +33,25 @@ const isWinPossible = (
          return (
             rowPosition >= winLength && colPosition + winLength - 1 <= boardSize
          );
+   }
+};
+
+//as you're looping back to find winning patterns, this will get the next index in the search
+const calculateNextWinPatternIndex = (
+   pattern: WinPattern,
+   boardIndex: number,
+   searchIndex: number,
+   boardSize: number
+) => {
+   switch (pattern) {
+      case 'horizontal':
+         return boardIndex - searchIndex;
+      case 'vertical':
+         return boardIndex - boardSize * searchIndex;
+      case 'leftDiag':
+         return boardIndex - boardSize * searchIndex - searchIndex;
+      case 'rightDiag':
+         return boardIndex - boardSize * searchIndex + searchIndex;
    }
 };
 
@@ -88,27 +88,27 @@ const findWinByPattern = (
 
    return { winner, winningIndexes, winningPlayer: value as Player };
 };
+
+const WIN_ITERATOR: readonly WinPattern[] = Object.freeze([
+   'horizontal',
+   'vertical',
+   'leftDiag',
+   'rightDiag'
+]);
+
 export function findWinner(
    board: BoardValue[],
    boardSize: number,
    winLength: number = 3
 ): WinState {
-   //so we can iterate over the winning patterns
-   const winIterator: readonly WinPattern[] = Object.freeze([
-      'horizontal',
-      'vertical',
-      'leftDiag',
-      'rightDiag'
-   ]);
-
    for (
       //we can skip over the first n indexes since no wins are possible until we get past that point
       let boardIndex = winLength - 1;
       boardIndex < board.length;
       boardIndex++
    ) {
-      for (let i = 0; i < winIterator.length; i++) {
-         const pattern = winIterator[i];
+      for (let i = 0; i < WIN_ITERATOR.length; i++) {
+         const pattern = WIN_ITERATOR[i];
 
          const { winner, winningIndexes, winningPlayer } = findWinByPattern(
             pattern,

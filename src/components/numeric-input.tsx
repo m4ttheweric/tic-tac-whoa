@@ -38,6 +38,13 @@ export const NumericInput: React.FC<NumericInputProps> = ({
    const [prohibitedAttempt, setProhibitedAttempt] = useState(false);
    const [value, setValue] = useState(initialValue);
 
+   //if the value is ever greater than the max when the max changes, set the value to the max to stay in range
+   useUpdateEffect(() => {
+      if (parseInt(value, 10) > max) {
+         setValue(max.toString());
+      }
+   }, [max]);
+
    useUpdateEffect(() => {
       //any changes to the reset counter are a message to reset errors
       setOutOfRange(false);

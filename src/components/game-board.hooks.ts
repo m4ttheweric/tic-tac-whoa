@@ -85,6 +85,10 @@ export function useGame() {
    };
    const handleChangeBoardSize = (value: number) => {
       setBoardSize(value);
+      if (winLength > value) {
+         //don't let the win length remain gt the board size
+         setWinLength(value);
+      }
       resetGame(value);
    };
 
