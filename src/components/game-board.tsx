@@ -10,11 +10,6 @@ import {
    Input,
    InputGroup,
    InputLeftAddon,
-   NumberDecrementStepper,
-   NumberIncrementStepper,
-   NumberInput,
-   NumberInputField,
-   NumberInputStepper,
    SimpleGrid,
    Stack,
    Text,
@@ -23,6 +18,7 @@ import {
 import React from 'react';
 import { MAX_BOARD_SIZE, MIN_BOARD_SIZE, useGame } from './game-board.hooks';
 import { GameSquare, PlayerColors } from './game-square';
+import { NumericInput } from './numeric-input';
 
 export const GameBoard = () => {
    const {
@@ -30,14 +26,13 @@ export const GameBoard = () => {
       xPlayer,
       oPlayer,
       boardSize,
-      boardSizeInputVal,
+
       boardState,
       player,
       winState,
       gameIsInProgress,
       newGameText,
-      resizeError,
-      boardSizeInvalid,
+      resetCounter,
 
       //helper fns
       resetGame,
@@ -45,8 +40,8 @@ export const GameBoard = () => {
       //handlers
       handleSquareClick,
       handleChangeBoardSize,
+      handleChangeWinLength,
       handleNewGameClick,
-      handleGameSizeInputClick,
       handlePlayerNameChange,
 
       //alert stuff:
@@ -94,49 +89,31 @@ export const GameBoard = () => {
       </AlertDialog>
    );
 
-   const gameSizeInput = () => (
-      <InputGroup alignSelf='center'>
-         <InputLeftAddon children={'Board Size'} />
-         <NumberInput
-            maxW={32}
-            min={MIN_BOARD_SIZE}
-            max={MAX_BOARD_SIZE}
-            value={boardSizeInputVal}
-            onChange={v => handleChangeBoardSize(v)}
-            placeholder='Game Size'
-            isDisabled={gameIsInProgress}
-            onClick={handleGameSizeInputClick}
-         >
-            <NumberInputField
-               sx={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-            />
-            <NumberInputStepper>
-               <NumberIncrementStepper />
-               <NumberDecrementStepper />
-            </NumberInputStepper>
-         </NumberInput>
-      </InputGroup>
-   );
-
    const gameControls = () => (
       <Stack
          direction={{ base: 'column', md: 'row' }}
          spacing={{ base: 4, md: 4 }}
       >
-         <VStack justify={'center'}>
-            {gameSizeInput()}
-            {resizeError && (
-               <Text maxW={220} fontSize={'sm'} color={'red.500'}>
-                  You cannot resize the board while a game is in progress.
-               </Text>
-            )}
-            {boardSizeInvalid && (
-               <Text color={'red.500'}>
-                  {`Enter an integer between ${MIN_BOARD_SIZE} and ${MAX_BOARD_SIZE}`}
-               </Text>
-            )}
-         </VStack>
-
+         <NumericInput
+            initialValue={MIN_BOARD_SIZE.toString()}
+            min={MIN_BOARD_SIZE}
+            max={MAX_BOARD_SIZE}
+            placeholder='Board Size'
+            changeProhibited={gameIsInProgress}
+            prohibitedErrorMessage='You cannot resize the board while a game is in progress.'
+            resetCounter={resetCounter}
+            onChange={handleChangeBoardSize}
+         />
+         <NumericInput
+            initialValue={MIN_BOARD_SIZE.toString()}
+            min={MIN_BOARD_SIZE}
+            max={boardSize}
+            placeholder='Win Length'
+            changeProhibited={gameIsInProgress}
+            prohibitedErrorMessage='You cannot change win length while a game is in progress.'
+            resetCounter={resetCounter}
+            onChange={handleChangeWinLength}
+         />
          <Button
             onClick={handleNewGameClick}
             disabled={!gameIsInProgress}
