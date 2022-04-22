@@ -1,8 +1,12 @@
-import { BoardValue, WinState } from '../types/game-types';
+import { BoardValue, Player, WinState } from '../types/game-types';
 
 type WinPattern = 'horizontal' | 'vertical' | 'leftDiag' | 'rightDiag';
 
-type FindWinResult = { winner: boolean; winningIndexes: number[] };
+type FindWinResult = {
+   winner: boolean;
+   winningIndexes: number[];
+   winningPlayer: Player;
+};
 
 //as you're looping back to find winning patterns, this will get the next index in the search
 const calculateNextWinPatternIndex = (
@@ -61,7 +65,7 @@ const findWinByPattern = (
    const value = board[boardIndex];
 
    if (!isWinPossible(pattern, value, boardIndex, boardSize, winLength))
-      return { winner: false, winningIndexes: [] };
+      return { winner: false, winningIndexes: [], winningPlayer: null };
 
    let winner = true;
    const winningIndexes = [boardIndex];
@@ -82,7 +86,7 @@ const findWinByPattern = (
       }
    }
 
-   return { winner, winningIndexes };
+   return { winner, winningIndexes, winningPlayer: value as Player };
 };
 export function findWinner(
    board: BoardValue[],
@@ -97,31 +101,32 @@ export function findWinner(
       'rightDiag'
    ]);
 
-   for (let boardIndex = 0; boardIndex < board.length; boardIndex++) {
+   for (
+      //we can skip over the first n indexes since no wins are possible until we get past that point
+      let boardIndex = winLength - 1;
+      boardIndex < board.length;
+      boardIndex++
+   ) {
       const value = board[boardIndex];
 
-      //only start looking when we get past the win length index position
-      if (boardIndex >= winLength - 1 && value !== '') {
-         //iterate over win patterns
-         for (let i = 0; i < winIterator.length; i++) {
-            const pattern = winIterator[i];
+      for (let i = 0; i < winIterator.length; i++) {
+         const pattern = winIterator[i];
 
-            const { winner, winningIndexes } = findWinByPattern(
-               pattern,
-               board,
-               boardIndex,
-               boardSize,
-               winLength
-            );
+         const { winner, winningIndexes, winningPlayer } = findWinByPattern(
+            pattern,
+            board,
+            boardIndex,
+            boardSize,
+            winLength
+         );
 
-            if (winner) {
-               return {
-                  isWinner: true,
-                  winningPlayer: value,
-                  winningIndexes: winningIndexes,
-                  catsGame: false
-               };
-            }
+         if (winner) {
+            return {
+               isWinner: true,
+               winningPlayer,
+               winningIndexes,
+               catsGame: false
+            };
          }
       }
    }
