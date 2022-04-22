@@ -50,7 +50,7 @@ const isWinPossible = (
          return colPosition >= winLength && rowPosition >= winLength;
       case 'rightDiag':
          return (
-            rowPosition >= winLength && colPosition + winLength - 1 < boardSize
+            rowPosition >= winLength && colPosition + winLength - 1 <= boardSize
          );
    }
 };
@@ -107,8 +107,6 @@ export function findWinner(
       boardIndex < board.length;
       boardIndex++
    ) {
-      const value = board[boardIndex];
-
       for (let i = 0; i < winIterator.length; i++) {
          const pattern = winIterator[i];
 
