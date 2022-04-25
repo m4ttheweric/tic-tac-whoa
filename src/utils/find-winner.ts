@@ -36,22 +36,22 @@ const isWinPossible = (
    }
 };
 
-//as you're looping back to find winning patterns, this will get the next index in the search
-const calculateNextWinPatternIndex = (
+//as you're looping back to find winning patterns, this will get the next index in the seek
+const getNextSeekIndexByWinPattern = (
    pattern: WinPattern,
    boardIndex: number,
-   searchIndex: number,
+   seekIndex: number,
    boardSize: number
 ) => {
    switch (pattern) {
       case 'horizontal':
-         return boardIndex - searchIndex;
+         return boardIndex - seekIndex;
       case 'vertical':
-         return boardIndex - boardSize * searchIndex;
+         return boardIndex - boardSize * seekIndex;
       case 'leftDiag':
-         return boardIndex - boardSize * searchIndex - searchIndex;
+         return boardIndex - boardSize * seekIndex - seekIndex;
       case 'rightDiag':
-         return boardIndex - boardSize * searchIndex + searchIndex;
+         return boardIndex - boardSize * seekIndex + seekIndex;
    }
 };
 
@@ -71,11 +71,11 @@ const findWinByPattern = (
    const winningIndexes = [boardIndex];
 
    //seek backward through the board for winning patterns
-   for (let searchIndex = 1; searchIndex < winLength; searchIndex++) {
-      const nextWinPatternIndex = calculateNextWinPatternIndex(
+   for (let seekIndex = 1; seekIndex < winLength; seekIndex++) {
+      const nextWinPatternIndex = getNextSeekIndexByWinPattern(
          pattern,
          boardIndex,
-         searchIndex,
+         seekIndex,
          boardSize
       );
       winningIndexes.push(nextWinPatternIndex);
