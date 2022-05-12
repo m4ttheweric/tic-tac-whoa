@@ -13,11 +13,6 @@ const INITIAL_GAME_STATE: WinState = {
    catsGame: false
 };
 
-function isBoardSizeValid(val: string) {
-   const size = parseInt(val, 10);
-   return !(!size || size > MAX_BOARD_SIZE || size < MIN_BOARD_SIZE);
-}
-
 function buildBoardState(boardSize: number) {
    return Array(boardSize * boardSize).fill('');
 }
@@ -29,7 +24,8 @@ export function useGame() {
 
    //board state and size
    const [boardSize, setBoardSize] = useState(3);
-   const [boardSizeInputVal, setBoardSizeInputVal] = useState('3');
+   const [winLength, setWinLength] = useState(3);
+
    const [boardState, setBoardState] = useState<BoardValue[]>(
       buildBoardState(boardSize)
    );
@@ -53,13 +49,10 @@ export function useGame() {
       [winState.isWinner, winState.catsGame]
    );
 
-   //error states
-   const [resizeError, setResizeError] = useState(false);
-   const [boardSizeInvalid, setBoardSizeInvalid] = useState(false);
+   const [resetCounter, setResetCounter] = useState(0);
 
    const resetGame = (newBoardSize: number = null) => {
-      setResizeError(false);
-      setBoardSizeInvalid(false);
+      setResetCounter(resetCounter + 1);
       setBoardState(buildBoardState(newBoardSize || boardSize));
       setWinState({ ...INITIAL_GAME_STATE });
       setPlayer('X');
@@ -69,7 +62,7 @@ export function useGame() {
    const handleSquareClick = (index: number) => {
       if (winState.isWinner || winState.catsGame) return;
 
-      setResizeError(false);
+      setResetCounter(resetCounter + 1);
       const updateBoardState = [...boardState];
       if (updateBoardState[index] !== '') {
          return;
@@ -78,7 +71,7 @@ export function useGame() {
 
       setBoardState(updateBoardState);
 
-      const result = findWinner(updateBoardState, boardSize);
+      const result = findWinner(updateBoardState, boardSize, winLength);
 
       if (result.isWinner || result.catsGame) {
          setWinState(result);
@@ -87,22 +80,16 @@ export function useGame() {
       setPlayer(player === 'X' ? 'O' : 'X');
    };
 
-   const handleChangeBoardSize = (value: string) => {
-      const newBoardSize = parseInt(value, 10);
-      setBoardSizeInputVal(value);
-
-      const isValid = isBoardSizeValid(value);
-
-      setBoardSizeInvalid(!isValid);
-
-      if (isValid) {
-         if (gameIsInProgress) {
-            setResizeError(true);
-         } else {
-            setBoardSize(newBoardSize);
-            resetGame(newBoardSize);
-         }
+   const handleChangeWinLength = (value: number) => {
+      setWinLength(value);
+   };
+   const handleChangeBoardSize = (value: number) => {
+      setBoardSize(value);
+      if (winLength > value) {
+         //don't let the win length remain gt the board size
+         setWinLength(value);
       }
+      resetGame(value);
    };
 
    const handleNewGameClick = () => {
@@ -112,12 +99,6 @@ export function useGame() {
          onShowGameWarning();
       } else {
          resetGame();
-      }
-   };
-
-   const handleGameSizeInputClick = () => {
-      if (gameIsInProgress) {
-         setResizeError(true);
       }
    };
 
@@ -143,14 +124,13 @@ export function useGame() {
       xPlayer,
       oPlayer,
       boardSize,
-      boardSizeInputVal,
+      winLength,
       boardState,
       player,
       winState,
       gameIsInProgress,
       newGameText,
-      resizeError,
-      boardSizeInvalid,
+      resetCounter,
 
       //helper fns
       resetGame,
@@ -158,8 +138,8 @@ export function useGame() {
       //handlers
       handleSquareClick,
       handleChangeBoardSize,
+      handleChangeWinLength,
       handleNewGameClick,
-      handleGameSizeInputClick,
       handlePlayerNameChange,
 
       //alert stuff:

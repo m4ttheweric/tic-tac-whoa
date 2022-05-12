@@ -1,82 +1,131 @@
-import { BoardValue, WinState } from '../types/game-types';
+import { BoardValue, Player, WinState } from '../types/game-types';
 
-export function findWinner(board: BoardValue[], boardSize: number): WinState {
-   let rows: string[][] = [...new Array(boardSize)].map(() =>
-      new Array(boardSize).fill('')
-   );
+type WinPattern = 'horizontal' | 'vertical' | 'leftDiag' | 'rightDiag';
 
-   for (let index = 0; index < board.length; index++) {
-      const value = board[index];
+type FindWinResult = {
+   winner: boolean;
+   winningIndexes: number[];
+   winningPlayer: Player;
+};
 
-      const currentRow = Math.floor(index / boardSize);
-      const rowIndex = index % boardSize;
+const isWinPossible = (
+   pattern: WinPattern,
+   value: BoardValue,
+   index: number,
+   boardSize: number,
+   winLength: number
+) => {
+   if (value === '') return false;
 
-      //set the rows array value
-      rows[currentRow][rowIndex] = value;
+   const currentRow = Math.floor(index / boardSize);
+   const rowIndex = index % boardSize;
+   const colPosition = rowIndex + 1;
+   const rowPosition = currentRow + 1;
 
-      if (value === '') continue;
+   switch (pattern) {
+      case 'horizontal':
+         return colPosition >= winLength;
+      case 'vertical':
+         return rowPosition >= winLength;
+      case 'leftDiag':
+         return colPosition >= winLength && rowPosition >= winLength;
+      case 'rightDiag':
+         return (
+            rowPosition >= winLength && colPosition + winLength - 1 <= boardSize
+         );
+   }
+};
 
-      //check for horizontal win
-      if (
-         rowIndex > 1 &&
-         rows[currentRow][rowIndex - 1] === value &&
-         rows[currentRow][rowIndex - 2] === value
-      ) {
-         return {
-            isWinner: true,
-            winningPlayer: value,
-            winningIndexes: [index - 2, index - 1, index],
-            catsGame: false
-         };
+//as you're looping back to find winning patterns, this will get the next index in the seek
+const getNextSeekIndexByWinPattern = (
+   pattern: WinPattern,
+   boardIndex: number,
+   seekIndex: number,
+   boardSize: number
+) => {
+   switch (pattern) {
+      case 'horizontal':
+         return boardIndex - seekIndex;
+      case 'vertical':
+         return boardIndex - boardSize * seekIndex;
+      case 'leftDiag':
+         return boardIndex - boardSize * seekIndex - seekIndex;
+      case 'rightDiag':
+         return boardIndex - boardSize * seekIndex + seekIndex;
+   }
+};
+
+const findWinByPattern = (
+   pattern: WinPattern,
+   board: BoardValue[],
+   boardIndex: number,
+   boardSize: number,
+   winLength: number
+): FindWinResult => {
+   const value = board[boardIndex];
+
+   if (!isWinPossible(pattern, value, boardIndex, boardSize, winLength))
+      return { winner: false, winningIndexes: [], winningPlayer: null };
+
+   let winner = true;
+   const winningIndexes = [boardIndex];
+
+   //seek backward through the board for winning patterns
+   for (let seekIndex = 1; seekIndex < winLength; seekIndex++) {
+      const nextWinPatternIndex = getNextSeekIndexByWinPattern(
+         pattern,
+         boardIndex,
+         seekIndex,
+         boardSize
+      );
+      winningIndexes.push(nextWinPatternIndex);
+
+      if (board[nextWinPatternIndex] !== value) {
+         winner = false;
+         break;
       }
+   }
 
-      //check for vertical win
-      if (
-         currentRow > 1 &&
-         rows[currentRow - 1][rowIndex] === value &&
-         rows[currentRow - 2][rowIndex] === value
-      ) {
-         return {
-            isWinner: true,
-            winningPlayer: value,
-            winningIndexes: [index, index - boardSize, index - boardSize * 2],
-            catsGame: false
-         };
-      }
+   return { winner, winningIndexes, winningPlayer: value as Player };
+};
 
-      //left diagonal win
-      if (
-         currentRow > 1 &&
-         rows[currentRow - 1][rowIndex - 1] === value &&
-         rows[currentRow - 2][rowIndex - 2] === value
-      ) {
-         return {
-            isWinner: true,
-            winningPlayer: value,
-            winningIndexes: [
-               index,
-               index - boardSize - 1,
-               index - boardSize * 2 - 2
-            ],
-            catsGame: false
-         };
-      }
-      //right diagonal win
-      if (
-         currentRow > 1 &&
-         rows[currentRow - 1][rowIndex + 1] === value &&
-         rows[currentRow - 2][rowIndex + 2] === value
-      ) {
-         return {
-            isWinner: true,
-            winningPlayer: value,
-            winningIndexes: [
-               index,
-               index - boardSize + 1,
-               index - boardSize * 2 + 2
-            ],
-            catsGame: false
-         };
+const WIN_ITERATOR: readonly WinPattern[] = Object.freeze([
+   'horizontal',
+   'vertical',
+   'leftDiag',
+   'rightDiag'
+]);
+
+export function findWinner(
+   board: BoardValue[],
+   boardSize: number,
+   winLength: number = 3
+): WinState {
+   for (
+      //we can skip over the first n indexes since no wins are possible until we get past that point
+      let boardIndex = winLength - 1;
+      boardIndex < board.length;
+      boardIndex++
+   ) {
+      for (let i = 0; i < WIN_ITERATOR.length; i++) {
+         const pattern = WIN_ITERATOR[i];
+
+         const { winner, winningIndexes, winningPlayer } = findWinByPattern(
+            pattern,
+            board,
+            boardIndex,
+            boardSize,
+            winLength
+         );
+
+         if (winner) {
+            return {
+               isWinner: true,
+               winningPlayer,
+               winningIndexes,
+               catsGame: false
+            };
+         }
       }
    }
 
