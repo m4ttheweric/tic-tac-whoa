@@ -2,6 +2,8 @@
 
 This is a simple tic tac toe game that allows game sizes from 3x3 up to 15x15.
 
+Also allows configurable win-length to make larger game boards more interesting!
+
 Have fun!
 
 This project was bootstrapped with
